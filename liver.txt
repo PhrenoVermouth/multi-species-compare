@@ -1,0 +1,383 @@
+NM_000253	liver	small_intestine
+NM_000252	liver
+NM_016413	liver
+NM_000236	liver
+NM_000846	liver	testis
+XM_372532	liver
+NM_000221	liver
+NM_021871	liver
+NM_021870	liver
+NM_001002294	liver
+NM_033127	liver
+NM_001185	liver	prostate
+NM_001181	liver
+NM_001159	liver
+NM_001145	liver
+NM_005438	liver
+NM_001756	liver
+NM_001134	heart	liver	spleen
+NM_001133	kidney	liver
+NM_001002236	liver
+NM_001002235	liver
+NM_001737	liver
+NM_001735	liver
+NM_005410	liver	soft_tissue
+NM_014576	liver	stomach
+NM_002089	liver
+NM_001713	kidney	liver
+NM_001710	liver
+NM_001701	liver
+NM_022129	kidney	liver
+NM_002665	liver
+NM_006944	liver
+NM_015496	liver
+NM_007293	liver
+NM_031862	liver
+NM_031858	liver
+NM_031850	liver	placenta
+XM_370629	liver
+NM_194431	liver
+NM_194430	liver
+NM_153320	kidney	liver
+NM_145740	liver
+NM_019101	liver
+NM_052831	liver
+NM_012083	liver
+NM_052828	liver
+NM_024560	liver
+XM_497945	liver
+NM_016356	liver
+NM_000187	kidney	liver
+NM_000186	bladder	larynx	liver	tongue
+NM_000185	liver
+NM_000792	kidney	liver
+NM_004467	liver
+NM_000780	liver
+NM_000777	liver
+NM_000775	liver
+NM_000773	liver
+NM_000772	liver
+NM_000771	liver
+NM_000770	liver
+NM_016327	kidney	liver
+NM_001001872	liver
+NM_000156	liver
+NM_000151	kidney	liver
+NM_000767	liver
+NM_000765	liver
+NM_000764	liver	mammary_gland
+NM_000762	liver
+NM_000133	liver
+NM_017888	kidney	liver
+NM_000128	liver
+NM_000119	liver
+NM_001086	liver
+NM_001085	liver
+NM_001082	liver
+NM_000106	liver
+NM_005989	liver
+NM_033013	liver
+NM_001075	liver
+NM_000716	cervix	liver
+NM_000715	liver
+NM_021139	liver
+NM_001063	eye	liver
+NM_001671	liver
+NM_021123	liver	testis
+NM_005951	eye	liver
+NM_005950	liver
+NM_001657	liver	stomach
+NM_005332	liver
+XM_211090	liver
+NM_014495	kidney	liver
+NM_001646	liver
+NM_001645	liver
+NM_001643	liver	spleen
+NM_152381	larynx	liver	muscle
+NM_030878	liver
+NM_001639	liver
+NM_001633	liver
+NM_006894	liver
+NM_001622	liver
+NM_001609	kidney	liver
+NM_002570	liver
+NM_198086	cervix	liver
+NM_022002	liver
+NM_006843	liver
+NM_152311	colon	kidney	liver
+NM_006229	liver	pancreas
+NM_152924	liver
+NM_006215	liver	pancreas
+NM_145662	liver
+NM_007157	liver
+XM_294765	liver
+XM_375148	liver
+NM_007127	colon	liver
+NM_016280	larynx	liver
+NM_032049	liver	placenta
+NM_000092	liver
+NM_178507	liver
+NM_000685	liver	placenta
+NM_000680	liver
+NM_000066	liver
+NM_000065	liver
+NM_000064	liver
+NM_000672	kidney	liver
+NM_000670	liver
+NM_000669	liver
+NM_000668	liver	peripheral_nervous_system	soft_tissue
+NM_000667	liver
+NM_000663	liver
+NM_004959	liver	spleen	testis
+NM_000045	blood	liver
+NM_004951	liver
+NM_000042	liver
+NM_000040	liver	spleen
+NM_000039	liver	spleen
+NM_004944	kidney	liver
+NM_000035	liver	small_intestine	spleen
+NM_138325	liver
+NM_138324	liver
+NM_000032	blood	liver	spleen
+NM_138323	liver
+NM_138322	liver
+NM_000030	liver
+NM_138321	liver
+NM_138320	liver
+NM_138933	liver	stomach
+NM_138932	liver	stomach
+NM_000029	liver
+NM_138319	liver
+NM_009585	liver	placenta
+NM_000638	liver
+NM_138924	liver
+NM_000015	liver
+NM_000014	liver
+NM_005899	liver
+NM_000624	liver	testis
+NM_000613	liver
+NM_013453	liver
+NM_172386	liver	muscle
+NM_000608	liver
+NM_000607	liver
+NM_000606	liver	stomach
+NM_021023	larynx	liver	tongue
+NM_001010845	kidney	liver
+NM_018687	liver
+NM_005838	kidney	liver
+NM_005836	liver
+NM_001002029	liver
+NM_139208	liver
+NM_014375	liver
+NM_022568	kidney	liver
+NM_030754	liver
+NM_006169	bone	liver
+NM_014353	liver
+NM_006778	liver
+NM_006154	bladder	liver
+NM_018029	liver
+NM_002465	liver	muscle
+NM_018018	liver
+NM_006137	liver	muscle	spleen
+NM_177550	liver
+NM_194294	liver	placenta
+NM_006744	liver
+NM_144639	liver
+NM_153187	liver
+NM_148923	liver
+NM_019559	liver
+NM_182983	liver
+NM_153742	liver
+NM_080914	liver
+NM_080913	liver
+NM_080912	liver
+NM_032578	larynx	liver
+NM_016186	liver
+NM_198503	liver
+NM_007011	liver
+NM_020686	liver
+NM_004273	liver
+NM_000592	liver
+NM_182908	bladder	liver
+NM_000583	liver
+NM_024945	liver
+NM_000576	liver
+NM_000567	liver
+NM_000562	liver
+NM_013391	kidney	liver
+NM_004835	liver	placenta
+NM_000538	liver
+NM_005794	bladder	liver
+NM_175616	liver
+XM_377476	liver
+NM_001482	kidney	liver
+NM_000509	liver
+NM_000508	liver
+NM_000506	liver
+NM_000505	liver	stomach
+NM_001474	liver	testis
+NM_001472	liver	testis
+NM_017634	liver
+NM_001468	liver	testis
+NM_001466	liver
+NM_005143	liver
+NM_001461	liver
+NM_005141	liver
+NM_017614	kidney	liver
+NM_001443	liver
+NM_005123	kidney	liver
+NM_005122	kidney	liver
+NM_152780	liver
+NM_002993	liver	spleen
+NM_022447	liver
+NM_006672	kidney	liver
+NM_080283	liver	muscle
+NM_213653	liver	muscle
+NM_213652	liver	muscle
+NM_002937	liver
+NM_006610	liver
+NM_003891	kidney	liver
+NM_002302	liver
+NM_003889	liver
+XM_379243	liver
+NM_213605	liver
+NM_003855	liver
+NM_198400	bladder	liver
+XM_497054	liver
+NM_003227	liver
+NM_153609	liver
+XM_096642	liver
+NM_004188	liver	spleen
+NM_003822	liver
+NM_000488	liver
+NM_000483	liver
+NM_000477	liver	spleen
+NM_130786	liver
+NM_004750	liver	tongue
+NM_004139	liver
+NM_000457	colon	kidney	liver
+NM_004132	kidney	liver	muscle
+NM_202004	liver	muscle
+NM_000446	liver
+NM_000429	liver
+NM_000421	liver	skin
+NM_001395	liver
+NM_013261	kidney	liver
+NM_000412	liver
+NM_001385	kidney	liver
+NM_001994	liver
+NM_017545	liver
+NM_005666	liver
+NM_033304	liver
+NM_033303	liver
+NM_033302	liver
+NM_005651	liver
+NM_001354	bladder	liver	lung
+NM_030589	liver	mammary_gland
+NM_001353	bladder	liver
+NM_001966	kidney	liver
+NM_147203	liver
+NM_001308	liver	skin
+NM_001914	liver
+NM_018437	blood	liver	spleen	testis
+NM_001902	liver
+NM_213593	kidney	liver
+NM_181871	kidney	liver
+NM_152635	liver
+NM_031481	liver
+NM_002864	liver
+NM_006512	liver
+NM_001003938	liver
+NM_002218	liver
+NM_002217	liver
+NM_002216	liver	spleen
+NM_002215	liver
+NM_003167	liver
+NM_201648	kidney	liver
+NM_032383	liver
+NM_057096	liver
+NM_057095	liver
+NM_178850	colon	kidney	liver
+NM_178849	colon	kidney	liver
+NM_003126	liver
+NM_003739	bladder	liver
+NM_024773	liver
+XM_371134	liver
+NM_003725	liver
+NM_000392	liver
+NM_001005783	kidney	liver
+NM_000384	liver	small_intestine	spleen
+NM_003708	liver	stomach
+NM_012254	liver
+NM_206821	liver	muscle
+NM_206820	liver	muscle
+NM_024106	liver
+NM_016527	kidney	liver
+NM_000354	liver
+NM_000353	liver
+NM_206819	liver	muscle
+NM_012224	liver
+NM_016518	kidney	liver	muscle
+NM_000342	blood	liver
+NM_000340	kidney	liver
+NM_000331	liver
+NM_000940	liver
+NM_183009	liver
+NM_000324	blood	liver
+NM_017460	liver
+NM_021977	liver
+NM_004617	liver	pancreas
+NM_000934	kidney	liver
+NM_000312	liver
+NM_021969	liver
+NM_000301	kidney	liver
+NM_021957	liver
+NM_001889	liver
+NM_207117	liver
+NM_001266	larynx	liver
+NM_001875	cervix	liver
+NM_001872	liver
+NM_001862	liver
+NM_017416	liver
+NM_005538	liver
+NM_197978	blood	liver	spleen	testis
+NM_005518	liver
+NM_006488	liver
+NM_018960	liver
+NM_001818	liver
+NM_006467	liver
+NM_002151	liver
+NM_002150	liver
+NM_006446	liver
+NM_022820	liver
+NM_006438	liver
+NM_145277	liver	muscle
+NM_002113	liver
+NM_205860	liver
+NM_002108	blood	liver
+XM_496537	liver	spleen
+XM_496536	liver
+NM_201553	liver
+NM_201552	liver
+NM_205845	bladder	liver	lung
+NM_031938	liver
+NM_019844	liver
+NM_052972	liver
+NM_052971	liver
+NM_003057	liver
+NM_003049	liver
+NM_170771	kidney	liver
+NM_031900	kidney	liver
+NM_012196	liver	testis
+NM_032876	cervix	liver
+NM_199161	liver
+NM_020998	liver
+NM_020995	liver
+NM_020980	liver
+NM_000298	kidney	liver
+NM_182617	kidney	liver
+NM_000295	liver
+NM_000893	kidney	liver
+NM_000892	liver
+NM_000277	kidney	liver
+XM_498379	liver

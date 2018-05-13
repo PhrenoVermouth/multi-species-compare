@@ -1,0 +1,202 @@
+setwd("/Volumes/Work/Mac_WorkSpace/leptin/multi_spec_comp")
+library(pheatmap)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(ggplot2)
+library(stringr)
+library(dplyr)
+library(randomForest)
+library(org.Hs.eg.db)
+library(ggsignif)
+library(ggsci)
+########################################
+#################### expr matrix
+########################################
+hum <- read.csv("Human_normat_allgene.txt",sep=' ')
+mus <- read.csv("Mosue_normat.txt",sep=" ",row.names = 1)
+rat <- read.csv("rat_all_normat_log.txt",row.names = 1)
+maca <- read.csv("macaca_normat_log.txt",row.names = 1)
+homolog <- read.csv('Hum_Mus_Rat_Macaca.csv',stringsAsFactors = F,header = T,na.strings = "") #10212
+#dim(homolog)
+homolog <- na.omit(homolog)
+lsg <- as.vector(read.csv("liver.txt",sep="\t",header = F)$V1)
+lsg <- bitr(lsg, fromType="REFSEQ" , toType=c("SYMBOL"), OrgDb="org.Hs.eg.db")
+lsg <- unique(lsg$SYMBOL)
+diff_hum <- as.vector(read.csv("Hum_NAFLD.csv",header = F)$V1)
+diff_rat <- as.vector(read.csv("rat_diff.csv",header = F)$V1)
+diff_macaca <- as.vector(read.csv("macaca_diff.csv",header = F)$V1)
+diff_rat_w16 <- as.vector(read.csv("rat_diff_w16.csv",header = F)$V1)
+diff_rat <- homolog[homolog[,4] %in% diff_rat,]$Hum
+diff_rat_w16 <- homolog[homolog[,4] %in% diff_rat_w16,]$Hum
+diff_macaca <- homolog[homolog[,2] %in% diff_macaca,]$Hum
+com_matrix <- cbind(hum[homolog$Hum,],mus[homolog$Mouse,],rat[homolog$Rat,],maca[homolog$Macaca,])
+com_matrix <- na.omit(com_matrix) #9909
+com_matrix <- apply(com_matrix,2, function(x) (x-mean(x))/sd(x))
+#hepa-specific
+com_matrix <- com_matrix[which(rownames(com_matrix) %in% lsg),] #162 #164 #196 #179
+com_matrix_rat <- com_matrix[which(rownames(com_matrix) %in% diff_rat),] #15 #15 #17 #16
+com_matrix_hum <- com_matrix[which(rownames(com_matrix) %in% diff_hum),] #22 #19 #24 #22
+com_matrix_macaca <- com_matrix[which(rownames(com_matrix) %in% diff_macaca),] #14 #14 #18 #17
+#co_diff <-  intersect(diff_macaca,diff_rat)
+com_matrix_rat16 <- com_matrix[which(rownames(com_matrix) %in% diff_rat_w16),]
+##############这个文件只是为了排序
+#write.csv(a,"heatmap.csv")
+rat_mat = read.csv("rat_heatmap.csv",row.names = 1)
+#colnames(a)
+#a = cor(com_matrix_rat)[c(72:115),c(1:71)]
+#write.csv(a[rownames(rat_mat),][-33,-34],"cor_heatmap.csv",row.names = T)
+p1 = read.csv("cor_heatmap.csv",row.names = 1)
+pheatmap(p[,c(str_subset(names(sort(p["W32_KO1",])),"advanced"),str_subset(names(sort(p["W32_KO1",])),"mild"))],
+color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
+cluster_cols = F,cluster_rows = F, border_color = NA)
+pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(names(sort(p["W32_KO1",])),"mild"))],
+color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
+cluster_cols = F,cluster_rows = F, border_color = NA)
+pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(names(sort(p1["W32_KO1",])),"mild"))],
+color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
+cluster_cols = F,cluster_rows = F, border_color = NA)
+#########辅助图形
+library(reshape2)
+mydata <- data.frame(p1,name=rownames(p1))
+mydata$spec <- rep(c("Mouse","Rat","Macaca"),c(8,29,6))
+mydata$treat <- rep(c("KO","WT","KO","WT","KO","WT","KO","WT"),c(4,4,9,9,6,5,3,3))
+mydata$time <- rep(c("none","early","late","none"),c(8,18,11,6))
+mydata<-melt(
+mydata,                                      #待转换的数据集名称
+id.vars=c("name","spec","treat","time"),  #要保留的主字段
+variable.name="hum",         #转换后的分类字段名称（维度）
+value.name="cor"            #转换后的度量值名称
+)
+mydata$hum <- str_split_fixed(mydata$hum,"_",2)[,1]
+mydata$comp <- factor(paste0(mydata$spec,mydata$treat))
+gran_theme <- theme_classic() +
+theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=14,face = "bold") ,axis.text=element_text(size=16))
+########!!!!
+p = cor(com_matrix)[c(72:115),c(1:71)]
+mydata <- data.frame(p,name=rownames(p))[-27,-34]#!!!
+mydata$spec <- rep(c("Mouse","Rat","Macaca"),c(8,29,6)) #去掉了一个，明天再查查
+mydata$treat <- rep(c("KO","WT","KO","WT","KO","WT","KO","WT"),c(4,4,9,9,6,5,3,3))
+mydata$time <- rep(c("none","early","late","none"),c(8,18,11,6))
+####!!!!
+dim(mydata)
+mean_row <- apply(mydata[,c(1:70)],1,mean)
+summary(mean_row)
+mydata$class <- rep(0,43)
+for(i in 1:length(mean_row)){
+if(mean_row[i] <= 0.7378){mydata$class[i] = "fail"}
+else if(mean_row[i] >= 0.7609){mydata$class[i] = "okay"}
+else{mydata$class[i] = "medium"}
+}
+data_forest <- rownames(mydata[which(mydata$class != 'medium'),])
+######!!!!
+data_forest <- as.data.frame(t(com_matrix)[data_forest,])
+#dim(data_forest)
+data_forest$class <- rep(0,22)
+data_forest[rownames(mydata[mydata$class=="okay",]),]$class = "okay"
+data_forest[rownames(mydata[mydata$class=="fail",]),]$class = "fail"
+data_forest$class <- factor(data_forest$class)
+forest_if <- randomForest(formula = class ~ ., data = data_forest, importance = TRUE, proximity = TRUE)
+round(importance(forest_if), 2)
+#################GO
+forest_gene <- as.data.frame(round(importance(forest_if), 2))
+summary(forest_gene$MeanDecreaseAccuracy)
+forest_top_gene <- rownames(forest_gene[which(forest_gene$MeanDecreaseAccuracy >= 1.9350),]) #top 25%
+ids <- bitr(forest_top_gene, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db")
+ggo <- groupGO(gene     = ids$ENTREZID,
+OrgDb    = org.Hs.eg.db,
+ont      = "BP",
+level    = 3,
+readable = TRUE)
+barplot(ggo, drop=TRUE, showCategory=12)
+barplot(ggo, drop=TRUE, showCategory=12)
+?barplot
+?barplot
+clusterProfiler::barplot
+?clusterProfiler::barplot
+?clusterProfiler::barplot()
+barplot
+barplot()
+barplot
+barplot()
+bitr()
+bitr
+barplot(ggo, drop=TRUE, showCategory=12) + theme(axis.title.x =element_text(size=14), axis.title.y=element_text(size=14))
+barplot(ggo, drop=TRUE, showCategory=12) +
+gran_theme
+barplot(ggo, drop=TRUE, showCategory=12) +
+gran_theme+ guides(fill=FALSE)
+ggsave("forest_go.png",dpi=300)
+ggo <- groupGO(gene     = ids$ENTREZID,
+OrgDb    = org.Hs.eg.db,
+ont      = "MF",
+level    = 3,
+readable = TRUE)
+barplot(ggo, drop=TRUE, showCategory=12) +
+gran_theme+ guides(fill=FALSE)
+ggsave("forest_go_MF.png",dpi=300)
+ggo <- groupGO(gene     = ids$ENTREZID,
+OrgDb    = org.Hs.eg.db,
+ont      = "CC",
+level    = 3,
+readable = TRUE)
+barplot(ggo, drop=TRUE, showCategory=12) +
+gran_theme+ guides(fill=FALSE) #Remove the legend
+ggo <- groupGO(gene     = ids$ENTREZID,
+OrgDb    = org.Hs.eg.db,
+ont      = "BP",
+level    = 4,
+readable = TRUE)
+barplot(ggo, drop=TRUE, showCategory=12) +
+gran_theme+ guides(fill=FALSE) #Remove the legend
+View(com_matrix)
+View(com_matrix)
+rownames(com_matrix)[-27]
+colnames(com_matrix)[]
+colnames(com_matrix)
+########
+WGCNA_matrix=t(com_matrix[!(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")),])
+########
+WGCNA_matrix=t(com_matrix[!(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1"),])
+########
+WGCNA_matrix=t(com_matrix[!(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")),])
+which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1"))
+-(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")))
+########
+WGCNA_matrix=t(com_matrix[,-(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")))])
+rownames(WGCNA_matrix)
+mydata <- data.frame(p1,name=rownames(p1))
+mydata$spec <- rep(c("Mouse","Rat","Macaca"),c(8,29,6))
+mydata$treat <- rep(c("KO","WT","KO","WT","KO","WT","KO","WT"),c(4,4,9,9,6,5,3,3))
+mydata$time <- rep(c("none","early","late","none"),c(8,18,11,6))
+mydata <- data.frame(p1,name=rownames(p1))
+mydata$spec <- rep(c("Mouse","Rat","Macaca"),c(8,29,6))
+mydata$treat <- rep(c("KO","WT","KO","WT","KO","WT","KO","WT"),c(4,4,9,9,6,5,3,3))
+mydata$time <- rep(c("none","early","late","none"),c(8,18,11,6))
+View(mydata)
+dim(WGCNA_matrix)
+dim(mydata)
+View(WGCNA_matrix)
+########
+WGCNA_matrix <- t(com_matrix[,-(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")))])
+View(WGCNA_matrix)
+View(WGCNA_matrix)
+rownames(WGCNA_matrix)
+?grep
+grep("^W",rownames(WGCNA_matrix))
+WGCNA_matrix <- WGCNA_matrix[grep("^W",rownames(WGCNA_matrix)),]
+View(WGCNA_matrix)
+grep("^Wd%",rownames(WGCNA_matrix))
+grep("^W\d",rownames(WGCNA_matrix))
+grep("^W.+\d",rownames(WGCNA_matrix))
+grep(".+\d",rownames(WGCNA_matrix))
+grep("^W.+\d",rownames(WGCNA_matrix),perl=T)
+grep("^W.+\\d",rownames(WGCNA_matrix),perl=T)
+########
+WGCNA_matrix <- t(com_matrix[,-(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")))])
+grep("^W.+\\d",rownames(WGCNA_matrix))
+grep("^W.+\\d+_",rownames(WGCNA_matrix))
+WGCNA_matrix <- WGCNA_matrix[grep("^W.+\\d",rownames(WGCNA_matrix)),]
+########
+WGCNA_matrix <- t(com_matrix[,-(which(colnames(com_matrix) %in% c("mild_rep10","W32_WT1")))])
+WGCNA_matrix <- WGCNA_matrix[grep("^W\\d",rownames(WGCNA_matrix)),]
+
