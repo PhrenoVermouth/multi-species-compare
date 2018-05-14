@@ -63,6 +63,11 @@ pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(nam
 color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
 cluster_cols = F,cluster_rows = F, border_color = NA)
 
+#p1 <- cor(com_matrix_hum)[c(72:115),c(1:71)]
+#pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(names(sort(p1["W32_KO1",])),"mild"))],
+#         color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
+#         cluster_cols = F,cluster_rows = F, border_color = NA)
+
 ########################################
 #################### Violin plot
 ########################################
