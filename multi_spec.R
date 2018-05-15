@@ -9,6 +9,7 @@ library(randomForest)
 library(org.Hs.eg.db)
 library(ggsignif)
 library(ggsci)
+library(WGCNA)
 
 gran_theme <- theme_classic() +
   theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=14,face = "bold") ,axis.text=element_text(size=16))
@@ -238,39 +239,35 @@ readable = TRUE)
 ########################################
 
 #### 1)read FPKM data & condition data ###############################
-gene_FPKM=com_matrix
+gene_FPKM <- rat[homolog[which(homolog$Hum %in% rownames(com_matrix)),]$Rat,]
+colnames(gene_FPKM) <- gsub("Lep","KO",colnames(gene_FPKM))
 
-condition_table=read.csv("F:/lwj-works/2018-4-8_GAO_RNAseq/lwj_GAO_tempresult_week2(4.16-4.22)/cut_samples/new_condition_table.csv",header = TRUE,row.names = 1)
-condition_table$name=paste0(condition_table$condition,condition_table$cell_type)
+condition_table <- data.frame(row.names = colnames(gene_FPKM),
+                              time = str_split_fixed(colnames(gene_FPKM),"_",2)[,1],
+                              treat = str_sub(gsub("Lep","KO",str_split_fixed(colnames(gene_FPKM),"_",2)[,2]),1,2))
 
-## Data Processing：filter FPKM<1 in all sample (35119-10948=24171 transcripts)
-gene_FPKM_log=log2(gene_FPKM+1)
-gene_FPKM_log = gene_FPKM_log[apply(gene_FPKM_log,1,max)>=1,]
-gene_FPKM_log = gene_FPKM_log[apply(gene_FPKM_log,1,max)-apply(gene_FPKM_log,1,min)>=1,]
+## Data Processing：filter FPKM<1 in all sample 
+#gene_FPKM_log=log2(gene_FPKM+1)
+#gene_FPKM_log = gene_FPKM_log[apply(gene_FPKM_log,1,max)>=1,]
+#gene_FPKM_log = gene_FPKM_log[apply(gene_FPKM_log,1,max)-apply(gene_FPKM_log,1,min)>=1,]
 
 #GC_FPKM_log=log2(GC_gene_FPKM+1)
 #result=apply(GC_FPKM_log,1,function(x) all(x<1))
 #pos=which(result=="TRUE")
 #GC_filter=GC_FPKM_log[-pos,] 
+ 
 
-##sep OC/GC
-OC_gene_FPKM=gene_FPKM_log[,grep("OC",colnames(gene_FPKM_log))]
-GC_gene_FPKM=gene_FPKM_log[,grep("GC",colnames(gene_FPKM_log))]
-CC_gene_FPKM=gene_FPKM_log[,grep("CC",colnames(gene_FPKM_log))]
-## filter for OC/GC(OC:24171-4191=19980;GC:24171-3078=21093;CC:24171-11003=13168)
-OC_gene_FPKM=OC_gene_FPKM[apply(OC_gene_FPKM,1,max)>=1,];
-OC_gene_FPKM=OC_gene_FPKM[apply(OC_gene_FPKM,1,max)-apply(OC_gene_FPKM,1,min)>=1,]
-GC_gene_FPKM=GC_gene_FPKM[apply(GC_gene_FPKM,1,max)>=1,];
-GC_gene_FPKM=GC_gene_FPKM[apply(GC_gene_FPKM,1,max)-apply(GC_gene_FPKM,1,min)>=1,]
-CC_gene_FPKM=CC_gene_FPKM[apply(CC_gene_FPKM,1,max)>=1,];
-CC_gene_FPKM=CC_gene_FPKM[apply(CC_gene_FPKM,1,max)-apply(CC_gene_FPKM,1,min)>=1,]
+## filter for OC/GC
+#gene_FPKM=gene_FPKM[apply(OC_gene_FPKM,1,max)>=1,];
+#gene_FPKM=gene_FPKM[apply(OC_gene_FPKM,1,max)-apply(OC_gene_FPKM,1,min)>=1,]
 
 
 ##mad（c（1,2,3,4））=median(sum(abs(i-2.5)))*1.4826=1*1.4826
-WGCNA_matrix=t(OC_gene_FPKM[order(apply(OC_gene_FPKM, 1, mad),decreasing = T),])
-Time=condition_table[grep("OC",rownames(condition_table)),2]
-datTrait=data.frame(gsm=rownames(WGCNA_matrix),
-                    condition=Time)
+WGCNA_matrix=t(gene_FPKM[order(apply(gene_FPKM, 1, mad),decreasing = T),])
+
+datTrait=data.frame(gsm = rownames(WGCNA_matrix),
+                    time = condition_table$time,
+                    treat = condition_table$treat)
 
 
 ####  cluster the samples
@@ -296,7 +293,7 @@ plot(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2],
 text(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
      labels=powers,cex=cex1,col="red")
 #this line corresponds to using an R^2 cut-off of h
-abline(h=0.95,col="green")
+abline(h=0.8,col="green")
 # Mean connectivity as a function of the soft-thresholding power
 plot(sft$fitIndices[,1], sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
@@ -309,7 +306,7 @@ best_beta=sft$powerEstimate
 net=blockwiseModules(WGCNA_matrix,
                      power = sft$powerEstimate,
                      maxBlockSize = 6000,
-                     TOMType = "unsigned",minModuleSize = 30,
+                     TOMType = "unsigned",minModuleSize = 10,
                      reassignThreshold = 0, mergeCutHeight = 0.25,
                      numericLabels = TRUE, pamRespectsDendro=FALSE,
                      saveTOMs = TRUE,
@@ -339,7 +336,7 @@ par(mar=c(0,5,2,0))
 plot(datExpr_tree,main="Sample clustering",sub="",xlab="",cex.lab=2,
      cex.axis=1,cex.main=1,cex.lab=1)
 
-sample_colors <- numbers2colors(as.numeric(factor(datTrait$condition)), 
+sample_colors <- numbers2colors(as.numeric(factor(datTrait$time)), #different traits
                                 colors = c(heat.colors(10)[c(1,3,5,7)],topo.colors(10)[c(5,4,3,2,1)]),signed = FALSE)
 
 
