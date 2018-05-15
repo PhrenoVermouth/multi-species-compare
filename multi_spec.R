@@ -10,6 +10,9 @@ library(org.Hs.eg.db)
 library(ggsignif)
 library(ggsci)
 
+gran_theme <- theme_classic() +
+  theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=14,face = "bold") ,axis.text=element_text(size=16))
+
 ########################################
 #################### expr matrix
 ########################################
@@ -68,6 +71,27 @@ cluster_cols = F,cluster_rows = F, border_color = NA)
 #         color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
 #         cluster_cols = F,cluster_rows = F, border_color = NA)
 
+##############GO of 179 ls-homo genes, as requested by LP
+ids <- bitr(rownames(com_matrix), fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db")
+ggo <- groupGO(gene     = ids$ENTREZID,
+               OrgDb    = org.Hs.eg.db,
+               ont      = "BP",
+               level    = 3,
+               readable = TRUE)
+
+barplot(ggo, drop=TRUE, showCategory=12) +
+  gran_theme+ guides(fill=FALSE)
+ggsave("179genes_go_bp.png",dpi=300)
+ggo <- groupGO(gene     = ids$ENTREZID,
+               OrgDb    = org.Hs.eg.db,
+               ont      = "MF",
+               level    = 3,
+               readable = TRUE)
+barplot(ggo, drop=TRUE, showCategory=12) +
+  gran_theme+ guides(fill=FALSE)
+ggsave("179genes_go_MF.png",dpi=300)
+
+
 ########################################
 #################### Violin plot
 ########################################
@@ -87,9 +111,7 @@ value.name="cor"            #转换后的度量值名称
 mydata$hum <- str_split_fixed(mydata$hum,"_",2)[,1]
 mydata$comp <- factor(paste0(mydata$spec,mydata$treat))
 
-###ggplot own theme
-gran_theme <- theme_classic() +
-theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=14,face = "bold") ,axis.text=element_text(size=16))
+
 
 ######证明一 三种物种的相关性比例差距
 anno_1 <- wilcox.test(mydata[mydata$comp  == "MouseKO", "cor"],
