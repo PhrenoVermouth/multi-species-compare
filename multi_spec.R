@@ -28,6 +28,10 @@ homolog <- na.omit(homolog)
 lsg <- as.vector(read.csv("liver.txt",sep="\t",header = F)$V1)
 lsg <- bitr(lsg, fromType="REFSEQ" , toType=c("SYMBOL"), OrgDb="org.Hs.eg.db")
 lsg <- unique(lsg$SYMBOL)
+
+#####################add inflamme here!!!!
+inflam <- as.character(read.csv("inflam.tab")$V1)
+
 diff_hum <- as.vector(read.csv("Hum_NAFLD.csv",header = F)$V1)
 diff_rat <- as.vector(read.csv("rat_diff.csv",header = F)$V1)
 diff_macaca <- as.vector(read.csv("macaca_diff.csv",header = F)$V1)
@@ -38,11 +42,14 @@ diff_macaca <- homolog[homolog[,2] %in% diff_macaca,]$Hum
 com_matrix <- cbind(hum[homolog$Hum,],mus[homolog$Mouse,],rat[homolog$Rat,],maca[homolog$Macaca,])
 com_matrix <- na.omit(com_matrix) #9909
 com_matrix <- apply(com_matrix,2, function(x) (x-mean(x))/sd(x))
-#hepa-specific
+
+com_matrix_inflam <- com_matrix[which(rownames(com_matrix) %in% inflam),]
+#From now variable 'com_matrix' are liver-specific genes by default unless re-declaraition.
 com_matrix <- com_matrix[which(rownames(com_matrix) %in% lsg),] #162 #164 #196 #179
 com_matrix_rat <- com_matrix[which(rownames(com_matrix) %in% diff_rat),] #15 #15 #17 #16
 com_matrix_hum <- com_matrix[which(rownames(com_matrix) %in% diff_hum),] #22 #19 #24 #22
 com_matrix_macaca <- com_matrix[which(rownames(com_matrix) %in% diff_macaca),] #14 #14 #18 #17
+
 #co_diff <-  intersect(diff_macaca,diff_rat)
 #com_matrix_rat16 <- com_matrix[which(rownames(com_matrix) %in% diff_rat_w16),]
 
