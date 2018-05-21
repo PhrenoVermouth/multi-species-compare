@@ -18,7 +18,8 @@ gran_theme <- theme_classic() +
 #################### expr matrix
 ########################################
 
-hum <- read.csv("Human_normat_allgene.txt",sep=' ')
+hum <- read.csv("Human_normat_allgene_2.csv",row.names = 1)
+hum <- hum[,c(grep("^c",colnames(hum)),grep("^h",colnames(hum)),grep("^s",colnames(hum)),grep("^n",colnames(hum)))]
 mus <- read.csv("Mosue_normat.txt",sep=" ",row.names = 1)
 rat <- read.csv("rat_all_normat_log.txt",row.names = 1)
 maca <- read.csv("macaca_normat_log.txt",row.names = 1)
@@ -57,20 +58,33 @@ com_matrix_macaca <- com_matrix[which(rownames(com_matrix) %in% diff_macaca),] #
 #################### Pheatmap
 ########################################
 
-##########1st Try
-p1 <- cor(com_matrix_rat)[c(72:115),c(1:71)]
-pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(names(sort(p1["W32_KO1",])),"mild"))],
-         color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
-         cluster_cols = F,cluster_rows = F, border_color = NA)
-###发现mildrep10,W32_WT1 异常 去除之 row27 col34
-p1 <- p1[-27,-34]
+##########inflam
+p1 <- cor(com_matrix_inflam)[c(74:117),c(1:73)]
+
+p1 <- p1[,-21] 
+p1 <- p1[,-3] #Remove control.11 healthyobese15
+
+###########lsg
+p1 <- cor(com_matrix)[c(74:117),c(1:73)]
+
+###########lsg+rat
+p1 <- cor(com_matrix_rat)[c(74:117),c(1:73)]
+p1 <- p1[,-55] 
+p1 <- p1[,-3]#remove con_rep11 ste_rep9
+
+
+
+
+
+
 
 ##############This is an order manually picked from excel.
 row_order = read.csv("row_order_minus32WT1.csv",header = F,stringsAsFactors = F)
 row_order <- row_order$V1
+
 #colnames(a)
 p1 <- p1[row_order,]
-pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(names(sort(p1["W32_KO1",])),"mild"))],
+pheatmap(p1,
 color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
 cluster_cols = F,cluster_rows = F, border_color = NA)
 
