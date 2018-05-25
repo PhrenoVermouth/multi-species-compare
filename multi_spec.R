@@ -29,9 +29,12 @@ homolog <- na.omit(homolog)
 lsg <- as.vector(read.csv("liver.txt",sep="\t",header = F)$V1)
 lsg <- bitr(lsg, fromType="REFSEQ" , toType=c("SYMBOL"), OrgDb="org.Hs.eg.db")
 lsg <- unique(lsg$SYMBOL)
-
-#####################add inflamme here!!!!
 inflam <- as.character(read.csv("inflam.tab")$V1)
+
+nash <- as.character(read.csv("Hum_nash_005.csv")$x)
+steatosis <- as.character(read.csv("Hum_steatosis_005.csv")$x)
+nash  <- homolog[which(homolog$Hum %in% nash),]$Rat
+steatosis  <- homolog[which(homolog$Hum %in% steatosis),]$Rat
 
 diff_hum <- as.vector(read.csv("Hum_NAFLD.csv",header = F)$V1)
 diff_rat <- as.vector(read.csv("rat_diff.csv",header = F)$V1)
@@ -40,6 +43,10 @@ diff_macaca <- as.vector(read.csv("macaca_diff.csv",header = F)$V1)
 diff_rat <- homolog[homolog[,4] %in% diff_rat,]$Hum
 #diff_rat_w16 <- homolog[homolog[,4] %in% diff_rat_w16,]$Hum
 diff_macaca <- homolog[homolog[,2] %in% diff_macaca,]$Hum
+
+
+
+
 com_matrix <- cbind(hum[homolog$Hum,],mus[homolog$Mouse,],rat[homolog$Rat,],maca[homolog$Macaca,])
 com_matrix <- na.omit(com_matrix) #9909
 com_matrix <- apply(com_matrix,2, function(x) (x-mean(x))/sd(x))
@@ -55,31 +62,26 @@ com_matrix_macaca <- com_matrix[which(rownames(com_matrix) %in% diff_macaca),] #
 #com_matrix_rat16 <- com_matrix[which(rownames(com_matrix) %in% diff_rat_w16),]
 
 ########################################
-#################### Pheatmap
+#################### Pheatmap 验证物种差异性
 ########################################
 
 ##########inflam
-p1 <- cor(com_matrix_inflam)[c(74:117),c(1:73)]
+p1 <- cor(com_matrix_inflam)[c(74:116),c(1:73)]
 
 p1 <- p1[,-21] 
 p1 <- p1[,-3] #Remove control.11 healthyobese15
 
 ###########lsg
-p1 <- cor(com_matrix)[c(74:117),c(1:73)]
+p1 <- cor(com_matrix)[c(74:116),c(1:73)]
 
 ###########lsg+rat
-p1 <- cor(com_matrix_rat)[c(74:117),c(1:73)]
+p1 <- cor(com_matrix_rat)[c(74:116),c(1:73)]
 p1 <- p1[,-55] 
 p1 <- p1[,-3]#remove con_rep11 ste_rep9
 
 
-
-
-
-
-
 ##############This is an order manually picked from excel.
-row_order = read.csv("row_order_minus32WT1.csv",header = F,stringsAsFactors = F)
+row_order = read.csv("row_order.csv",header = F,stringsAsFactors = F)
 row_order <- row_order$V1
 
 #colnames(a)
@@ -88,30 +90,66 @@ pheatmap(p1,
 color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
 cluster_cols = F,cluster_rows = F, border_color = NA)
 
+
+########################################
+############# Pheatmap 验证炎症与脂肪基因
+########################################
+
+p <- na.omit(rat[nash,][,c(colnames(rat)[grep("WT.$",colnames(rat))],
+                           colnames(rat)[grep("KO.$",colnames(rat))])])
+                           
+p <- t(apply(p,1,function(x) (x-mean(x))/sd(x)))
+
+#p <- ifelse(abs(p) < 1.6 , 0,p)
+
+pheatmap(p,cluster_cols = F,
+         border_color = NA, 
+         color = c(colorRampPalette(c("navy","white","firebrick3"))(100)),
+         breaks = c(seq(-4,-1.5,length.out = 40),seq(-1.49,1.5,length.out = 20),seq(1.51,4,length.out = 40)))
+
+
+p <- na.omit(rat[steatosis,][,c(colnames(rat)[grep("WT.$",colnames(rat))],
+                           colnames(rat)[grep("KO.$",colnames(rat))])])
+
+p <- t(apply(p,1,function(x) (x-mean(x))/sd(x)))
+
+
+p <- ifelse(abs(p) < 1.5 ,0,p)
+
+pheatmap(p,cluster_cols = F,
+         border_color = NA, 
+         color = c(colorRampPalette(c("navy","white","firebrick3"))(100)),
+         breaks = seq(-4,4,length.out = 100))
+
+
+
+breaks = c(seq(-4,-1.5,length.out = 40),seq(-1.49,1.5,length.out = 20),seq(1.51,4,length.out = 40))
+
+
 #p1 <- cor(com_matrix_hum)[c(72:115),c(1:71)]
 #pheatmap(p1[,c(str_subset(names(sort(p1["W32_KO1",])),"advanced"),str_subset(names(sort(p1["W32_KO1",])),"mild"))],
 #         color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
 #         cluster_cols = F,cluster_rows = F, border_color = NA)
 
 ##############GO of 179 ls-homo genes, as requested by LP
-ids <- bitr(rownames(com_matrix), fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db")
-ggo <- groupGO(gene     = ids$ENTREZID,
-               OrgDb    = org.Hs.eg.db,
-               ont      = "BP",
-               level    = 3,
-               readable = TRUE)
-
-barplot(ggo, drop=TRUE, showCategory=12) +
-  gran_theme+ guides(fill=FALSE)
-ggsave("179genes_go_bp.png",dpi=300)
-ggo <- groupGO(gene     = ids$ENTREZID,
-               OrgDb    = org.Hs.eg.db,
-               ont      = "MF",
-               level    = 3,
-               readable = TRUE)
-barplot(ggo, drop=TRUE, showCategory=12) +
-  gran_theme+ guides(fill=FALSE)
-ggsave("179genes_go_MF.png",dpi=300)
+# ids <- bitr(rownames(com_matrix), fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db")
+# ggo <- groupGO(gene     = ids$ENTREZID,
+#                OrgDb    = org.Hs.eg.db,
+#                ont      = "BP",
+#                level    = 3,
+#                readable = TRUE)
+# 
+# barplot(ggo, drop=TRUE, showCategory=12) +
+#   gran_theme+ guides(fill=FALSE)
+# ggsave("179genes_go_bp.png",dpi=300)
+# ggo <- groupGO(gene     = ids$ENTREZID,
+#                OrgDb    = org.Hs.eg.db,
+#                ont      = "MF",
+#                level    = 3,
+#                readable = TRUE)
+# barplot(ggo, drop=TRUE, showCategory=12) +
+#   gran_theme+ guides(fill=FALSE)
+# ggsave("179genes_go_MF.png",dpi=300)
 
 
 ########################################
