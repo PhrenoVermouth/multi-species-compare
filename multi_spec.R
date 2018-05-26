@@ -7,9 +7,12 @@ library(stringr)
 library(dplyr)
 library(randomForest)
 library(org.Hs.eg.db)
+library(org.Rn.eg.db)
 library(ggsignif)
 library(ggsci)
 library(WGCNA)
+library(reshape2)
+library(cowplot)
 
 gran_theme <- theme_classic() +
   theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=14,face = "bold") ,axis.text=element_text(size=16))
@@ -31,16 +34,27 @@ lsg <- bitr(lsg, fromType="REFSEQ" , toType=c("SYMBOL"), OrgDb="org.Hs.eg.db")
 lsg <- unique(lsg$SYMBOL)
 inflam <- as.character(read.csv("inflam.tab")$V1)
 
-nash <- as.character(read.csv("Hum_nash_005.csv")$x)
-steatosis <- as.character(read.csv("Hum_steatosis_005.csv")$x)
-nash  <- homolog[which(homolog$Hum %in% nash),]$Rat
-steatosis  <- homolog[which(homolog$Hum %in% steatosis),]$Rat
+nash_up <- homolog[which(homolog$Hum %in% as.character(read.csv("Hum_nash_005_up.csv")$x)),]$Rat
+nash_down <- homolog[which(homolog$Hum %in% as.character(read.csv("Hum_nash_005_down.csv")$x)),]$Rat
+steatosis_up <- homolog[which(homolog$Hum %in% as.character(read.csv("Hum_steatosis_005_up.csv")$x)),]$Rat
+steatosis_down <- homolog[which(homolog$Hum %in% as.character(read.csv("Hum_steatosis_005_down.csv")$x)),]$Rat
+
+
+# nash <- as.character(read.csv("Hum_nash_005.csv")$x)
+# steatosis <- as.character(read.csv("Hum_steatosis_005.csv")$x)
+# nash  <- homolog[which(homolog$Hum %in% nash),]$Rat
+# steatosis  <- homolog[which(homolog$Hum %in% steatosis),]$Rat
+
+
 
 diff_hum <- as.vector(read.csv("Hum_NAFLD.csv",header = F)$V1)
-diff_rat <- as.vector(read.csv("rat_diff.csv",header = F)$V1)
+diff_rat_up <- as.vector(read.csv("rat_diff_up.csv",header = F)$V1)
+diff_rat_down <- as.vector(read.csv("rat_diff_down.csv",header = F)$V1)
 diff_macaca <- as.vector(read.csv("macaca_diff.csv",header = F)$V1)
 #diff_rat_w16 <- as.vector(read.csv("rat_diff_w16.csv",header = F)$V1)
-diff_rat <- homolog[homolog[,4] %in% diff_rat,]$Hum
+diff_rat_up <- homolog[homolog[,4] %in% diff_rat_up,]$Hum
+diff_rat_down <- homolog[homolog[,4] %in% diff_rat_down,]$Hum
+diff_rat <- unique(c(diff_rat_down,diff_rat_up))
 #diff_rat_w16 <- homolog[homolog[,4] %in% diff_rat_w16,]$Hum
 diff_macaca <- homolog[homolog[,2] %in% diff_macaca,]$Hum
 
@@ -95,35 +109,74 @@ cluster_cols = F,cluster_rows = F, border_color = NA)
 ############# Pheatmap 验证炎症与脂肪基因
 ########################################
 
-p <- na.omit(rat[nash,][,c(colnames(rat)[grep("WT.$",colnames(rat))],
+############ 1.Both up-regu in rat & hum
+
+diff_rat_up <- as.vector(read.csv("rat_diff_up.csv",header = F)$V1)
+both_up <- intersect(diff_rat_up,c(nash_up,steatosis_up))
+p <- na.omit(rat[both_up,][,c(colnames(rat)[grep("WT.$",colnames(rat))],
                            colnames(rat)[grep("KO.$",colnames(rat))])])
-                           
-p <- t(apply(p,1,function(x) (x-mean(x))/sd(x)))
-
-#p <- ifelse(abs(p) < 1.6 , 0,p)
-
-pheatmap(p,cluster_cols = F,
-         border_color = NA, 
-         color = c(colorRampPalette(c("navy","white","firebrick3"))(100)),
-         breaks = c(seq(-4,-1.5,length.out = 40),seq(-1.49,1.5,length.out = 20),seq(1.51,4,length.out = 40)))
+p <- data.frame(t(apply(p,1,function(x) (x-mean(x))/sd(x))))
 
 
-p <- na.omit(rat[steatosis,][,c(colnames(rat)[grep("WT.$",colnames(rat))],
-                           colnames(rat)[grep("KO.$",colnames(rat))])])
+############# 2. Both down-regu in rat & hum
 
-p <- t(apply(p,1,function(x) (x-mean(x))/sd(x)))
-
-
-p <- ifelse(abs(p) < 1.5 ,0,p)
-
-pheatmap(p,cluster_cols = F,
-         border_color = NA, 
-         color = c(colorRampPalette(c("navy","white","firebrick3"))(100)),
-         breaks = seq(-4,4,length.out = 100))
+diff_rat_down <- as.vector(read.csv("rat_diff_down.csv",header = F)$V1)
+both_down <- intersect(diff_rat_down,c(nash_down,steatosis_down))
+p <- na.omit(rat[both_down,][,c(colnames(rat)[grep("WT.$",colnames(rat))],
+            colnames(rat)[grep("KO.$",colnames(rat))])])
+p <- data.frame(t(apply(p,1,function(x) (x-mean(x))/sd(x))))
 
 
+#############3. 1 plus 2
+p <- na.omit(rat[c(both_up,both_down),][,c(colnames(rat)[grep("WT.$",colnames(rat))],
+                                colnames(rat)[grep("KO.$",colnames(rat))])])
+p <- data.frame(t(apply(p,1,function(x) (x-mean(x))/sd(x))))
 
-breaks = c(seq(-4,-1.5,length.out = 40),seq(-1.49,1.5,length.out = 20),seq(1.51,4,length.out = 40))
+
+both_heatmap <- pheatmap(p[,c(1:29)],cluster_cols = F,cluster_rows = F,border_color = NA, 
+          color = c(colorRampPalette(c("navy","white","firebrick3"))(100)),
+         breaks = seq(-4,4,length.out = 100),legend = F)
+
+######################K-means贴标签 必然分两类
+cluster_p <- kmeans(p,2)
+p$label <- as.character(cluster_p$cluster)
+p <- p[order(p$label),]
+p$gene <- rownames(p)
+mydata<-melt(
+  p,                                      #待转换的数据集名称
+  id.vars=c("label","gene"),  #要保留的主字段
+  variable.name="name",         #转换后的分类字段名称（维度）
+  value.name="expr"            #转换后的度量值名称
+)
+mydata$time <- factor(str_split_fixed(mydata$name,"_",2)[,1],levels = c("W4","W8","W16","W32","W48"))
+mydata$treat <- str_sub(str_split_fixed(mydata$name,"_",2)[,2],1,2)
+
+both_boxplot <- ggplot(mydata,aes(x=time,y=expr,fill=treat)) +
+  geom_boxplot()+
+  gran_theme   + scale_fill_npg() + facet_grid(label~ .)
+
+plot_grid(both_heatmap$gtable, both_boxplot,  align = "h")
+ggsave("heatmap_boxplot.png",dpi=300,width = 12, height = 7.5)
+
+
+
+#p <- ifelse(abs(p) < 1.5,0,p)
+
+
+# 
+ids <- bitr(c(p[which(p$label == "3"),]$gene,p[which(p$label == "4"),]$gene), fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Rn.eg.db")
+# write.csv(ids,"cluter3_4.csv",quote=F)
+ids <- bitr(c(both_up,both_down), fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Rn.eg.db")
+# write.csv(ids,"both_gene.csv",quote=F)
+ego <- enrichGO(gene     = ids$ENTREZID,
+               OrgDb    = org.Rn.eg.db,
+               ont      = "BP",
+               readable = TRUE)
+
+cnetplot(ego, categorySize="pvalue")
+
+barplot(ego, drop=TRUE, showCategory=12) +
+  gran_theme
 
 
 #p1 <- cor(com_matrix_hum)[c(72:115),c(1:71)]
