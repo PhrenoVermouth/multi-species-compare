@@ -1,12 +1,11 @@
-setwd("/Volumes/Work/Mac_WorkSpace/leptin/multi_spec_comp")
+setwd("/Volumes/Mac_Workplace/Mac_WorkSpace/leptin/multi-species-compare/")
 library(pheatmap)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggplot2)
 library(stringr)
 library(dplyr)
-library(randomForest)
-library(org.Hs.eg.db)
+#library(randomForest)
 library(org.Rn.eg.db)
 library(ggsignif)
 library(ggsci)
@@ -79,52 +78,24 @@ com_matrix_macaca <- com_matrix[which(rownames(com_matrix) %in% diff_macaca),] #
 #################### Pheatmap 验证物种差异性
 ########################################
 
-##########inflam
-p1 <- cor(com_matrix_inflam)[c(74:116),c(1:73)]
-
-p1 <- p1[,-21] 
-p1 <- p1[,-3] #Remove control.11 healthyobese15
-
-###########lsg
-p1 <- cor(com_matrix)[c(74:116),c(1:73)]
-
-###########lsg+rat
-p1 <- cor(com_matrix_rat)[c(74:116),c(1:73)]
-p1 <- p1[,-55] 
-p1 <- p1[,-3]#remove con_rep11 ste_rep9
+# ##########inflam
+# p1 <- cor(com_matrix_inflam)[c(74:116),c(1:73)]
+# 
+# p1 <- p1[,-21] 
+# p1 <- p1[,-3] #Remove control.11 healthyobese15
+# 
+# ###########lsg
+# p1 <- cor(com_matrix)[c(74:116),c(1:73)]
+# 
+# ###########lsg+rat
+# p1 <- cor(com_matrix_rat)[c(74:116),c(1:73)]
+# p1 <- p1[,-55] 
+# p1 <- p1[,-3]#remove con_rep11 ste_rep9
 
 
 ##############This is an order manually picked from excel.
 row_order = read.csv("row_order.csv",header = F,stringsAsFactors = F)
 row_order <- row_order$V1
-
-#colnames(a)
-p1 <- p1[row_order,]
-pheatmap(p1,
-color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
-cluster_cols = F,cluster_rows = F, border_color = NA)
-
-p1 <- data.frame(p1)
-p1$species <- rep(c("Mouse","Rat","Macaca"),c(8,29,6))
-
-mydata<-melt(
-  p1,                                      #待转换的数据集名称
-  id.vars=c("species"),  #要保留的主字段
-  variable.name="hum_class",         #转换后的分类字段名称（维度）
-  value.name="cor"            #转换后的度量值名称
-)
-mydata$species <- factor(mydata$species,levels=c("Macaca","Rat","Mouse"))
-
-anno_1 <- wilcox.test(mydata[mydata$species  == "Macaca", "cor"],
-                      mydata[mydata$species  == "Rat", "cor"])$p.value
-anno_2 <- wilcox.test(mydata[mydata$species  == "Rat", "cor"],
-                      mydata[mydata$species  == "Mouse", "cor"])$p.value
-ggplot(mydata,aes(x=species,y=cor,fill=species)) +
-  geom_boxplot(outlier.color = "white")+
-   geom_signif(annotations = c(formatC(anno_1, digits=3),formatC(anno_2, digits=3)),
-        y_position = c(0.93,0.9), xmin=c(1,2), xmax=c(2,3),tip_length = c(0,0,0,0)) +
-  gran_theme   + scale_fill_npg() 
-ggsave('species_boxplot.pdf',dpi = 300)
 
 
 
@@ -194,18 +165,18 @@ com_matrix <- cbind(hum[homolog$Hum,],mus[homolog$Mouse,],rat[homolog$Rat,],maca
 com_matrix <- na.omit(com_matrix) 
 com_matrix <- apply(com_matrix,2, function(x) (x-mean(x))/sd(x))
 ############Heatmap of correlation
-com_matrix_inf_lp <- com_matrix[which(rownames(com_matrix) %in% toupper(inflam_geneset)),]
-p1 <- data.frame(cor(com_matrix)[c(74:116),c(1:73)])
-p1 <- p1[,-55] 
-p1 <- p1[,-3]
-pheatmap(p1[row_order,],cluster_cols = F,cluster_rows = F, border_color = NA)
-
-com_matrix_fat_lp <- com_matrix[which(rownames(com_matrix) %in% toupper(fat_geneset)),]
-p1 <- cor(com_matrix_fat_lp)[c(74:116),c(1:73)]
-p1 <- p1[,-55] 
-p1 <- p1[,-3]
-
-pheatmap(p1[row_order,],cluster_cols = F,cluster_rows = F, border_color = NA)
+# com_matrix_inf_lp <- com_matrix[which(rownames(com_matrix) %in% toupper(inflam_geneset)),]
+# p1 <- data.frame(cor(com_matrix)[c(74:116),c(1:73)])
+# p1 <- p1[,-55] 
+# p1 <- p1[,-3]
+# pheatmap(p1[row_order,],cluster_cols = F,cluster_rows = F, border_color = NA)
+# 
+# com_matrix_fat_lp <- com_matrix[which(rownames(com_matrix) %in% toupper(fat_geneset)),]
+# p1 <- cor(com_matrix_fat_lp)[c(74:116),c(1:73)]
+# p1 <- p1[,-55] 
+# p1 <- p1[,-3]
+# 
+# pheatmap(p1[row_order,],cluster_cols = F,cluster_rows = F, border_color = NA)
 
 com_matrix_all_lp <- com_matrix[which(rownames(com_matrix) %in% toupper(c(inflam_geneset,fat_geneset))),]
 p1 <- cor(com_matrix_all_lp)[c(74:116),c(1:73)]
@@ -213,7 +184,8 @@ p1 <- p1[,-55]
 p1 <- p1[,-3]
 pheatmap(p1[row_order,],cluster_cols = F,cluster_rows = F, border_color = NA,color = c(colorRampPalette(c("navy","white","firebrick3"))(100)))
 
-######3p1 <- apply(p1,2,function(x) (x-mean(x))/sd(x))
+######p1 <- apply(p1,2,function(x) (x-mean(x))/sd(x))
+p1 <- data.frame(p1)
 p1$sample <- rownames(p1)
 mydata<-melt(
   p1,                                      #待转换的数据集名称
@@ -230,34 +202,34 @@ ggplot(mydata,aes(x=human_class,y=cor,fill=treat)) +
   gran_theme   + scale_fill_npg() + facet_grid(time~ .)
 
 
-ids <- bitr(forest_top_gene, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db")
-ggo <- groupGO(gene     = ids$ENTREZID,
-OrgDb    = org.Hs.eg.db,
-ont      = "BP",
-level    = 3,
-readable = TRUE)
 
-barplot(ggo, drop=TRUE, showCategory=12) +
-gran_theme+ guides(fill=FALSE)
-ggsave("forest_go.png",dpi=300)
-ggo <- groupGO(gene     = ids$ENTREZID,
-OrgDb    = org.Hs.eg.db,
-ont      = "MF",
-level    = 3,
-readable = TRUE)
-barplot(ggo, drop=TRUE, showCategory=12) +
-gran_theme+ guides(fill=FALSE)
-ggsave("forest_go_MF.png",dpi=300)
-ggo <- groupGO(gene     = ids$ENTREZID,
-OrgDb    = org.Hs.eg.db,
-ont      = "CC",
-level    = 3,
-readable = TRUE)
-barplot(ggo, drop=TRUE, showCategory=12) +
-gran_theme+ guides(fill=FALSE) #Remove the legend
-ggo <- groupGO(gene     = ids$ENTREZID,
-OrgDb    = org.Hs.eg.db,
-ont      = "BP",
-level    = 4,
-readable = TRUE)
+
+#colnames(a)
+p1 <- p1[row_order,]
+pheatmap(p1,
+         color = c(colorRampPalette(c("navy","white"))(30),colorRampPalette(c("white","firebrick3"))(20)),
+         cluster_cols = F,cluster_rows = F, border_color = NA)
+
+p1 <- data.frame(p1)
+p1$species <- rep(c("Mouse","Rat","Macaca"),c(8,29,6))
+
+mydata<-melt(
+  p1,                                      #待转换的数据集名称
+  id.vars=c("species"),  #要保留的主字段
+  variable.name="hum_class",         #转换后的分类字段名称（维度）
+  value.name="cor"            #转换后的度量值名称
+)
+mydata$species <- factor(mydata$species,levels=c("Macaca","Rat","Mouse"))
+
+anno_1 <- wilcox.test(mydata[mydata$species  == "Macaca", "cor"],
+                      mydata[mydata$species  == "Rat", "cor"])$p.value
+anno_2 <- wilcox.test(mydata[mydata$species  == "Rat", "cor"],
+                      mydata[mydata$species  == "Mouse", "cor"])$p.value
+ggplot(mydata,aes(x=species,y=cor,fill=species)) +
+  geom_boxplot(outlier.color = "white")+
+  geom_signif(annotations = c(formatC(anno_1, digits=3),formatC(anno_2, digits=3)),
+              y_position = c(0.93,0.9), xmin=c(1,2), xmax=c(2,3),tip_length = c(0,0,0,0)) +
+  gran_theme   + scale_fill_npg() 
+ggsave('species_boxplot.pdf',dpi = 300)
+
 
