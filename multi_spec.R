@@ -12,6 +12,7 @@ library(ggsci)
 #library(WGCNA)
 library(reshape2)
 library(cowplot)
+library(qpcR)
 
 gran_theme <- theme_classic() +
   theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=24,face = "bold") ,axis.text=element_text(size=16))
@@ -237,21 +238,36 @@ ggsave('species_boxplot.pdf',dpi = 300)
 #########################################################
 
 #####Read in raw
-hm_ho <- as.character(read.csv("HO_diff.txt")$x) #12
-hm_nafld <- as.character(read.csv("NAFLD_diff.txt")$x) #65
-hm_nash <- as.character(read.csv("NASH_diff.txt")$x) #177
-
-rat_diff_w4 <- as.character(read.csv("rat_diff_w4.csv")$x) #281
-rat_diff_w8 <- as.character(read.csv("rat_diff_w8.csv")$x) #412
-rat_diff_w16 <- as.character(read.csv("rat_diff_w16.csv")$x) #2638
-rat_diff_w32 <- as.character(read.csv("rat_diff_w32.csv")$x) #2238
-rat_diff_w48 <- as.character(read.csv("rat_diff_w48.csv")$x) #377
-
+hum_mouse_diff <- read.csv("hum_mouse_diffgene.txt",sep="\t",header=T)
+rat_diff <- read.csv("rat_all_diff.csv",header=T)
+hum_diff <- hum_mouse_diff[,c(1:6)]
+mouse_diff <- hum_mouse_diff[,c(7:24)]
 
 #####Convert to Rat
-hm_ho_tran <- sort(homolog[which(homolog$Hum %in% hm_ho),]$Rat) #8
-hm_nafld_tran <- sort(homolog[which(homolog$Hum %in% hm_nafld),]$Rat) #50
-hm_nash_tran <- sort(homolog[which(homolog$Hum %in% hm_nash),]$Rat) #128
+hum_diff_tran <- c(1,1,1,1,1)
+for(i in 1:6){
+  a <- sort(homolog[which(homolog$Hum %in% as.character(hum_diff[,i])),]$Rat)
+  hum_diff_tran <- qpcR:::cbind.na(hum_diff_tran,a)
+  }
+hum_diff_tran <- hum_diff_tran[,c(2:7)]
+colnames(hum_diff_tran) <- colnames(hum_diff)
+
+#############Intersect genes within 3 species
+all_species_diff <- qpcR:::cbind.na(hum_diff_tran,rat_diff,mouse_diff)
+result_mat  <- matrix(rep(0,1156),nrow=34,ncol=34)
+for(i in 1:ncol(all_species_diff)){
+  for(j in 1:ncol(all_species_diff)){
+   result_mat[i,j] = length(intersect(as.character(all_species_diff[,i]),as.character(all_species_diff[,j])))
+  }
+}
+colnames(result_mat) <- rownames(result_mat) <- colnames(all_species_diff)
+write.csv(result_mat,"all_species_up_down_mat.csv",quote=F)
+result_up_mat <- result_mat[grep("up",rownames(result_mat)),grep("up",rownames(result_mat))]
+rownames(result_up_mat) <- colnames(result_up_mat) <- rownames(result_mat[grep("up",rownames(result_mat)),grep("up",rownames(result_mat))])
+result_down_mat <- result_mat[grep("down",rownames(result_mat)),grep("down",rownames(result_mat))]
+rownames(result_down_mat) <- colnames(result_down_mat) <- rownames(result_mat[grep("down",rownames(result_mat)),grep("down",rownames(result_mat))])
+write.csv(result_up_mat + result_down_mat,"all_species_mat.csv",quote=F)
+
 
 for(i in c(4,8,16,32,48)){
   print(length(intersect(get(paste0("rat_diff_w",i)),hm_ho_tran)))
