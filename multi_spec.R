@@ -9,7 +9,7 @@ library(dplyr)
 library(org.Rn.eg.db)
 library(ggsignif)
 library(ggsci)
-library(WGCNA)
+#library(WGCNA)
 library(reshape2)
 library(cowplot)
 
@@ -232,4 +232,44 @@ ggplot(mydata,aes(x=species,y=cor,fill=species)) +
   gran_theme   + scale_fill_npg() 
 ggsave('species_boxplot.pdf',dpi = 300)
 
+#########################################################
+###### 看公共数据的人的差异基因与大鼠的时期对应关系
+#########################################################
 
+#####Read in raw
+hm_ho <- as.character(read.csv("HO_diff.txt")$x) #12
+hm_nafld <- as.character(read.csv("NAFLD_diff.txt")$x) #65
+hm_nash <- as.character(read.csv("NASH_diff.txt")$x) #177
+
+rat_diff_w4 <- as.character(read.csv("rat_diff_w4.csv")$x) #281
+rat_diff_w8 <- as.character(read.csv("rat_diff_w8.csv")$x) #412
+rat_diff_w16 <- as.character(read.csv("rat_diff_w16.csv")$x) #2638
+rat_diff_w32 <- as.character(read.csv("rat_diff_w32.csv")$x) #2238
+rat_diff_w48 <- as.character(read.csv("rat_diff_w48.csv")$x) #377
+
+
+#####Convert to Rat
+hm_ho_tran <- sort(homolog[which(homolog$Hum %in% hm_ho),]$Rat) #8
+hm_nafld_tran <- sort(homolog[which(homolog$Hum %in% hm_nafld),]$Rat) #50
+hm_nash_tran <- sort(homolog[which(homolog$Hum %in% hm_nash),]$Rat) #128
+
+for(i in c(4,8,16,32,48)){
+  print(length(intersect(get(paste0("rat_diff_w",i)),hm_ho_tran)))
+}
+for(i in c(4,8,16,32,48)){
+  print(length(intersect(get(paste0("rat_diff_w",i)),hm_nafld_tran)))
+}
+for(i in c(4,8,16,32,48)){
+  print(length(intersect(get(paste0("rat_diff_w",i)),hm_nash_tran)))
+}
+
+#########################################################
+###### 看公共数据的人的差异通路与大鼠的时期对应关系
+kegg = data.frame(name="test",source="test")
+for(i in c("w16_KO.txt","w32_KO.txt","w48_KO.txt","w4_KO.txt","w8_KO.txt",
+           "w16_WT.txt","w32_WT.txt","w4_WT.txt","w8_WT.txt")){
+  len = length(as.character(read.csv(paste0("gsea/result/",i),sep="\t",header=F)$V1))
+  kegg = rbind(kegg,data.frame(name=as.character(read.csv(paste0("gsea/result/",i),sep="\t",header=F)$V1),source=rep(str_split_fixed(i,".txt",2)[1],len)))
+}
+kegg <- kegg[c(2:75),]
+kegg$name <- str_replace_all(str_sub(kegg$name,6),"_"," ")

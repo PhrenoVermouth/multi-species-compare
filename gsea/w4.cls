@@ -1,0 +1,3 @@
+6 2 1
+# WT KO
+WT WT WT KO KO KO
