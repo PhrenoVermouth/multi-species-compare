@@ -243,6 +243,8 @@ rat_diff <- read.csv("rat_all_diff.csv",header=T)
 hum_diff <- hum_mouse_diff[,c(1:6)]
 mouse_diff <- hum_mouse_diff[,c(7:24)]
 
+macaca_diff <- read.csv("macaca_diff.csv",row.names = 1)
+
 #####Convert to Rat
 hum_diff_tran <- c(1,1,1,1,1)
 for(i in 1:6){
@@ -252,9 +254,17 @@ for(i in 1:6){
 hum_diff_tran <- hum_diff_tran[,c(2:7)]
 colnames(hum_diff_tran) <- colnames(hum_diff)
 
+macaca_diff_tran <- c(1,1,1,1,1)
+for(i in 1:2){
+  a <- sort(homolog[which(homolog$Macaca %in% as.character(macaca_diff[,i])),]$Rat)
+  macaca_diff_tran <- qpcR:::cbind.na(macaca_diff_tran,a)
+}
+macaca_diff_tran <- macaca_diff_tran[,c(2:3)]
+colnames(macaca_diff_tran) <- c("macaca_ko_up","macaca_ko_down")
+
 #############Intersect genes within 3 species
-all_species_diff <- qpcR:::cbind.na(hum_diff_tran,rat_diff,mouse_diff)
-result_mat  <- matrix(rep(0,1156),nrow=34,ncol=34)
+all_species_diff <- qpcR:::cbind.na(hum_diff_tran,rat_diff,mouse_diff,macaca_diff_tran)
+result_mat  <- matrix(rep(0,1156),nrow=36,ncol=36)
 for(i in 1:ncol(all_species_diff)){
   for(j in 1:ncol(all_species_diff)){
    result_mat[i,j] = length(intersect(as.character(all_species_diff[,i]),as.character(all_species_diff[,j])))
