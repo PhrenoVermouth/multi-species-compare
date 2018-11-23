@@ -1,4 +1,4 @@
-setwd("/Volumes/Mac_Workplace/Mac_WorkSpace/leptin/multi-species-compare/result")
+setwd("/Volumes/Mac_Workplace/Mac_workspace/leptin/multi-species-compare/result")
 library(readxl)
 library(ggplot2)
 library(reshape2)
@@ -22,7 +22,7 @@ gene_box_tran$Counts <- as.numeric(gene_box_tran$Counts)
 ggplot(gene_box_tran,aes(x=Human,y=Counts,fill=rat)) +
   geom_bar(stat='identity',position=position_dodge()) + 
   gran_theme +
-  scale_fill_manual(values=c("LightGray","LightCyan","Cyan","DeepSkyBlue","Green1"))+
+  scale_fill_manual(values=c("LightGray","Cyan","Blue","magenta","red"))+
   theme(legend.position="none")
 ggsave("diff_genes_overlap.pdf",dpi=300,width = 3,height = 3)
 
@@ -43,7 +43,8 @@ pathway_box_tran$Counts <- as.numeric(pathway_box_tran$Counts)
 ggplot(pathway_box_tran,aes(x=Human,y=Counts,fill=rat)) +
   geom_bar(stat='identity',position=position_dodge()) + 
   gran_theme +
-  scale_fill_manual(values=c("LightGray","LightCyan","Cyan","DeepSkyBlue","Green1"))+
+  scale_fill_manual(values=c("LightGray","Cyan","Blue","magenta","red"))+
   theme(legend.position="none")
 ggsave("diff_pathways_overlap.pdf",dpi=300,width = 3,height = 3)
+
 

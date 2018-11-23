@@ -1,4 +1,4 @@
-setwd("/Volumes/Mac_Workplace/Mac_WorkSpace/leptin/multi-species-compare/")
+setwd("/Volumes/Mac_Workplace/Mac_workspace/leptin/multi-species-compare/")
 library(pheatmap)
 library(clusterProfiler)
 library(org.Hs.eg.db)
@@ -13,6 +13,8 @@ library(ggsci)
 library(reshape2)
 library(cowplot)
 library(qpcR)
+library(grid)
+library(VennDiagram)
 
 gran_theme <- theme_classic() +
   theme(legend.title =element_blank(),legend.text = element_text( size = 14, face = "bold"),axis.title =element_text(size=24,face = "bold") ,axis.text=element_text(size=16))
@@ -262,6 +264,10 @@ for(i in 1:2){
 macaca_diff_tran <- macaca_diff_tran[,c(2:3)]
 colnames(macaca_diff_tran) <- c("macaca_ko_up","macaca_ko_down")
 
+
+
+
+
 #############Intersect genes within 3 species
 all_species_diff <- qpcR:::cbind.na(hum_diff_tran,rat_diff,mouse_diff,macaca_diff_tran)
 result_mat  <- matrix(rep(0,1156),nrow=36,ncol=36)
@@ -278,8 +284,40 @@ result_down_mat <- result_mat[grep("down",rownames(result_mat)),grep("down",rown
 rownames(result_down_mat) <- colnames(result_down_mat) <- rownames(result_mat[grep("down",rownames(result_mat)),grep("down",rownames(result_mat))])
 write.csv(result_up_mat + result_down_mat,"all_species_mat.csv",quote=F)
 
-
-
+############# Added on Nov.19th as requested by Zhu
+zhu <- all_species_diff[,c("NASH_up","NASH_down","diff_w4_up","diff_w4_down","diff_w8_up","diff_w8_down","diff_w16_up","diff_w16_down","diff_w32_up","diff_w32_down","diff_w48_up","diff_w48_down")]
+zhu_16 <- intersect(zhu$NASH_up,zhu$diff_w16_up)
+zhu_up <- zhu[,grep("up",colnames(zhu))]
+#colnames(zhu_up)
+diff_w4_up <- na.omit(intersect(zhu_16,zhu_up[,2]))
+diff_w8_up <- na.omit(intersect(zhu_16,zhu_up[,3]))
+diff_w16_up <- na.omit(intersect(zhu_16,zhu_up[,4]))
+diff_w32_up <- na.omit(intersect(zhu_16,zhu_up[,5]))
+diff_w48_up <- na.omit(intersect(zhu_16,zhu_up[,6]))
+A = c(diff_w4_up)
+B = c(diff_w8_up)
+C = c(diff_w16_up)
+D = c(diff_w32_up)
+E = c(diff_w48_up)
+D1<-venn.diagram(list(w4_up=A,w8_up=B,w16_up=C,w32_up=D,w48_up=E),filename=NULL,lwd=1,lty=1,col=c("LightGray","Cyan","Blue","magenta","red"),
+                 fill=c("LightGray","Cyan","Blue","magenta","red"),rotation.degree=0,
+                 main = "Up-regulated genes within timescale")
+grid.draw(D1)
+ 
+temp_0 <- data.frame(C)
+for (i in list(A,B,C,D,E)) {
+  print(i)
+  temp_1 <- c()
+  for (j in C) {
+    if(j %in% i){temp_1 <- c(temp_1,1)}
+    else{temp_1 <- c(temp_1,0)}
+  }
+  temp_0 <- cbind(temp_0,temp_1)
+}
+rownames(temp_0) <- temp_0$C
+temp_0 <- temp_0[,c(2:6)]
+colnames(temp_0) <- c("Week4","Week8","Week16","Week32","Week48")
+pheatmap(temp_0)
 #########################################################
 ###### 看公共数据的人的差异通路与大鼠的时期对应关系
 #########################################################
